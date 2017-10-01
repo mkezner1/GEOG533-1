@@ -5,9 +5,9 @@
 **/*.pdf
 **/*.docx
 **/*.doc
+**/_*/
 /_bookdown_files/*
 /_main_files/*
 _*.Rmd
 _*.*
-
 .Rproj.user
