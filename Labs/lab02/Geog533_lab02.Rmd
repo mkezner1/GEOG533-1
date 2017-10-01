@@ -65,8 +65,8 @@ df.USA <- df[df$Origin == "USA",]
 df.nonUSA <- df[df$Origin == "non-USA",]
 if(!require(DT)) install.packages("DT")
 library(DT)
-datatable(df.USA,options = list(pageLength = 5),caption = "USA")
-datatable(df.nonUSA,options = list(pageLength = 5),caption = "non-USA")
+datatable(df.USA,options = list(pageLength = 5,scrollX=TRUE),caption = "USA")
+datatable(df.nonUSA,options = list(pageLength = 5,scrollX=TRUE),caption = "non-USA")
 ```
 
 
@@ -81,7 +81,7 @@ write.csv(df.USA,"carsUSA.csv")    ### write to a csv file
 USA.csv <- read.csv("carsUSA.csv")   ### read the csv file
 str(USA.csv)
 library(DT)
-datatable(USA.csv,options = list(pageLength = 5),caption = "USA")
+datatable(USA.csv,options = list(pageLength = 5, scrollX=TRUE),caption = "USA")
 ```
 
 
