@@ -90,6 +90,24 @@ polygon(cord.x,cord.y,density = 10)
 
 ## Exponential Distribution
 
+Genrate random numbers following exponential function: `rexp(n, rate = 1)` <br>
+
+
+```{r}
+x <- rexp(1000,rate = 0.5)
+hist(x,xlim = c(0,10))
+```
+
+```{r}
+x <- rexp(1000,rate = 1)
+hist(x,xlim = c(0,10))
+```
+
+```{r}
+x <- rexp(1000,rate = 3)
+hist(x,xlim = c(0,10))
+```
+
 density function: `dexp(x, rate = 1)` <br>
 cumulative distribution function: `pexp(q, rate = 1, lower.tail = TRUE)`
 
