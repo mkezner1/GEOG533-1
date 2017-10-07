@@ -1,0 +1,215 @@
+---
+title: "Lab 4"
+author: "Michael Kezner"
+date: October 7, 2017
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## <span style="color:red">Question 1</span>
+### <span style="color:blue">Part A</span>
+
+**The probability of a team scoring 20 points or fewer:**
+```{r 20 or fewer}
+pnorm(20, mean = 32, sd = 7)
+```
+The probability of a team scoring 20 points or fewer is **0.04323813** 
+
+<br>
+
+**Desnity Function:**
+```{r 20 or fewer density function}
+curve(dnorm(x, 32, 7), xlim = c(11, 53), col = "deepskyblue4", lwd = 2)
+cord.x <- c(11, seq(11, 20, 0.01), 20)
+cord.y <- c(0, dnorm(seq(11, 20, 0.01), 32, 7), 0)
+curve(dnorm(x, 32, 7), xlim = c(11, 53), col = "deepskyblue4", lwd = 2)
+polygon(cord.x, cord.y, col = "deepskyblue1")
+polygon(cord.x, cord.y, col = 'deepskyblue4', density = 10)
+```
+
+### <span style="color:blue">Part B</span>
+**The probability of a team scoring more than 35 points:**
+```{r more than 35 points}
+pnorm(35, 32, 7, lower.tail = FALSE)
+```
+The probability of a team scoring more than 35 points is **0.3341176**
+
+<br>
+
+**Density Function:**
+```{r more than 35 density function}
+curve(dnorm(x, 32, 7), xlim = c(11, 53), col = 'darkorchid4', lwd = 2)
+cord.x1 <- c(35, seq(35, 53, 0.01), 53)
+cord.y1 <- c(0, dnorm(seq(35, 53, 0.01), 32, 7), 0)
+curve(dnorm(x, 32, 7), xlim = c(11, 53), col = 'darkorchid4', lwd = 2)
+polygon(cord.x1, cord.y1, col = 'orchid1')
+polygon(cord.x1, cord.y1, col = 'darkorchid3', density = 10)
+```
+
+### <span style="color:blue">Part C</span>
+**The probability of a team scoring between 20 and 40 points**
+```{r between 20 and 40 points}
+diff(pnorm(c(20, 40), 32, 7))
+```
+The probability of a team scoring between 20 and 40 points is **0.8302129**
+
+<br>
+
+**Density Function:**
+```{r between 20 and 40 density function}
+curve(dnorm(x, 32, 7), xlim = c(11, 53), col = 'mediumseagreen', lwd = 2)
+cord.x2 <- c(20, seq(20, 40, 0.01), 40)
+cord.y2 <- c(0, dnorm(seq(20, 40, 0.01), 32, 7), 0)
+curve(dnorm(x, 32, 7), xlim = c(11, 53), col = 'mediumseagreen', lwd = 2)
+polygon(cord.x2, cord.y2, col = 'mediumspringgreen')
+polygon(cord.x2, cord.y2, col = 'mediumseagreen', density = 10)
+```
+
+## <span style="color:red">Question 2</span>
+### <span style="color:blue">Part A</span>
+**Percent of posts that get less than three comments:**
+```{r less than three comments}
+pexp(3, rate = (1/10))
+```
+The percent of posts that get less than three comments is **25.918%**
+
+<br>
+
+**Density Function:**
+```{r less than three comments density function}
+curve(dexp(x, 0.1), to = 100, xlim = c(0, 50), lwd = 2, col = "chocolate4")
+xcord <- c(0, seq(0, 3, 0.01), 3)
+ycord <- c(0, dexp(seq(0,3, 0.01), 0.1), 0)
+curve(dexp(x, 0.1), to = 100, xlim = c(0, 50), lwd = 2, col = "chocolate4")
+polygon(xcord, ycord, col = 'chocolate1')
+polygon(xcord, ycord, col = 'chocolate4', density = 10)
+```
+
+### <span style="color:blue">Part B</span>
+**The percent of posts that get more than 20 comments:**
+```{r more than 20 comments}
+pexp(20, rate = 0.1, lower.tail = FALSE)
+```
+The percent of posts that get more than 20 comments is **13.434%**
+
+<br>
+
+**Density Function:**
+```{r more than 20 density function}
+curve(dexp(x, 0.1), to = 60, xlim = c(0, 50), lwd = 2, col = 'palevioletred4')
+xcord1 <- c(20, seq(20, 60, 0.01), 50)
+ycord1 <- c(0, dexp(seq(20, 60, 0.01), 0.1), 0)
+curve(dexp(x, 0.1), to = 60, xlim = c(0, 50), lwd = 2, col = 'palevioletred4')
+polygon(xcord1, ycord1, col = 'palevioletred1')
+polygon(xcord1, ycord1, col = 'palevioletred4', density = 10)
+```
+
+### <span style="color:blue">Part C</span>
+**The percent of posts that get between five and ten comments:**
+```{r between five and ten comments}
+diff(pexp(c(5, 10), 0.1))
+```
+The percent of posts that get between five and ten comments is **23.865%**
+
+<br>
+
+**Density Function:**
+```{r between five and ten density function}
+curve(dexp(x, 0.1), to = 60, xlim = c(0, 50), lwd = 2, col = 'turquoise4')
+xcord2 <- c(5, seq(5, 10, 0.01), 10)
+ycord2 <- c(0, dexp(seq(5, 10, 0.01), 0.1), 0)
+curve(dexp(x, 0.1), to = 60, xlim = c(0, 50), lwd = 2, col = 'turquoise4')
+polygon(xcord2, ycord2, col = 'turquoise')
+polygon(xcord2, ycord2, col = 'turquoise4', density = 10)
+```
+
+## <span style="color:red">Question 3</span>
+### <span style="color:blue">Part A</span>
+
+**First raster with assigned values based on random values from a uniform distribution:**
+```{r first raster uniform distribution}
+library(raster)
+library(sp)
+ras1 <- raster(nrows = 30, ncols = 30, xmn = 0, xmx = 30, ymn = 0, ymx = 30)
+ras1
+```
+
+<br>
+
+**First Raster Plot:**
+```{r first raster plot}
+ras1[] <- runif(ncell(ras1))
+plot(ras1)
+```
+
+**First Raster Histogram:**
+```{r first raster histogram}
+hist(ras1)
+```
+
+### <span style="color:blue">Part B</span>
+**Second raster with assigned values based on random values from a normal distribution:**
+```{r second raster normal distribution}
+ras2 <- raster(nrows = 30, ncols = 30, xmn = 0, xmx = 30, ymn = 0, ymx = 30)
+ras2
+```
+
+<br>
+
+**Second Raster Plot:**
+```{r second raster plot}
+ras2[] <- rnorm(ncell(ras2))
+plot(ras2)
+```
+**Second Raster Histogram:**
+```{r second raster histogram}
+hist(ras2)
+```
+
+### <span style="color:blue">Part C</span>
+**Third raster with assigned values based on cell-by-cell addition of the first and second raster:**
+```{r third raster}
+ras3 <- ras1 + ras2
+ras3
+```
+
+<br>
+
+**Third Raster Plot:**
+```{r third raster plot}
+plot(ras3)
+```
+**Third Raster Histogram:**
+```{r third raster histogram}
+hist(ras3)
+```
+
+### <span style="color:blue">Part D</span>
+**Mean value of the third raster:**
+```{r third raster mean}
+cellStats(ras3, "mean")
+```
+The mean value of the third raster is **0.5121868**
+
+<br>
+
+**Reclassifying the third raster as a binary image:**
+```{r third raster reclass}
+ras4 <- ras3
+ras4[ras3 > 0.5121868] <- 1
+ras4[ras3 <= 0.5121868] <- 0
+plot(ras4)
+```
+
+**Saving the reclassifyed image to my working directory as a TIFF image:**
+```{r reclassed .tif image}
+library(rgdal)
+writeRaster(ras4, filename = "lab4ras4.tif", overwrite = TRUE)
+```
+
