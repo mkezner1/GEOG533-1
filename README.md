@@ -10,7 +10,7 @@ Statistics for Geography (GEOG 533)
 5. [Lecture_W05_Markdown](https://github.com/giswqs/GEOG533/tree/gh-pages/Lectures/Lecture_W05_Markdown)
 6. [Lecture_W06_Discrete_Probability](http://wetlands.io/GEOG533/Lectures/Lecture_W06_Discrete_Probability/Lecture_W06_Discrete_Probability.nb.html)
 7. [Lecture_W07_Continuous_Probability](http://wetlands.io/GEOG533/Lectures/Lecture_W07_Continuous_Probability/Lecture_W07_Continuous_Probability.nb.html)
-
+8. [Lecture_W08_Twitter_Analytics](http://wetlands.io/GEOG533/Lectures/Lecture_W08_Twitter_Analytics/Lecture_W08_Twitter_Analytics_R.nb.html)
 
 ### Labs
 
