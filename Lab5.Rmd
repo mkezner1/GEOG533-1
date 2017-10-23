@@ -1,0 +1,373 @@
+---
+title: "Geog533 Lab 5"
+author: "Michael Kezner"
+date: "October 21, 2017"
+output:  
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+Complete the following exercises in Chapter 5 (Inferential Statistics) of the textbook [R] pages 172-176.
+
+## <span style="color:blue">Question 1</span> 
+This is Exercise 1 of the textbook.
+
+A planner wishes to estimate average household size for a community within 0.2. The planner desires a 95% confidence level. A small survey indicates that the standard deviation of household size is 2.0. How large should the sample be?
+
+```{r}
+q95 <- qnorm(0.975)
+n <- (2*q95/0.2)^2
+n
+```
+The sample size should be **384.1459**
+
+
+## <span style="color:blue">Question 2</span>  
+This is Exercise 3 of the textbook.
+
+The tolerable level of a certain pollutant is 16 mg/l. A researcher takes a sample of size n = 50, and finds that the mean level of the pollutant is 18.5 mg/l, with a standard deviation of 7 mg/l. Construct a 95% confidence interval around the sample mean, and determine whether the tolerable level is within this interval. 
+
+<brk> 
+
+**Null hypothesis:** the tolerable level is within this interval    
+**Alternative hypothesis:** the tolerable level is not within this interval
+```{r}
+library(MASS)
+x <- mvrnorm(n=50, mu = 18.5, Sigma = 49, empirical = TRUE)
+result <- t.test(x)
+result
+if(result$p.value > 0.05){
+print("We cannot reject the null hypothesis")
+} else {
+print("We reject the null hypothesis")}
+```
+The 95% omfidence interval: **[16.51062, 20.48938]**
+
+
+## <span style="color:blue">Question 3</span> 
+This is Exercise 5 of the textbook.
+
+The proportion of people changing residence in the USA each year is 0.165. A researcher believes that the proportion may be different in the town of Amherst. She surveys 50 individuals in the town of Amherst and finds that the proportion who moved last year is 0.24. Is there evidence to conclude that the town has a mobility rate that is different from the national average? Use α = 0.05 and find a 90% confidence interval around the sample proportion, and state your conclusion.  
+
+<brk>
+
+**Null hypothesis:** the mobility rate of Amherst is the same as the national average.    
+**Alternative hypothesis:** the mobility rate of Amherst is different than the national average.
+
+```{r}
+q90 <- qnorm(0.950)
+error3 <- sqrt((0.24*(1-0.24))/50)
+conf.3 <- c(0.24 - (q90*error3), 0.24 + (q90*error3))
+conf.3
+```
+The 90% confidence interval: **[0.140653, 0.339347]** 
+
+<brk>
+
+The proportion of people changing residence in the USA falls within the 90% confidence interval. Therefore, there is not enough evidence to conclude that the town of Amherst has a different mobility rate than the national average and **we fail to reject the null.**
+
+## <span style="color:blue">Question 4</span> 
+This is Exercise 7 of the textbook.
+
+A survey of the white and nonwhite population in a local area reveals the following annual trip frequencies to the nearest state park: 
+
+<center>$\bar{x_{1}}=4.1$,   $s_{1}^{2} = 14.3$, $n_{1} = 20$</center>
+
+<center>$\bar{x_{2}}=3.1$,   $s_{2}^{2} = 12.0$, $n_{1} = 16$</center>
+
+where the subscript ‘1’ denotes the white population and the subscript ‘2’ denotes the nonwhite population. 
+
+<ol type="a">
+  <li>Assume that the variances are equal, and test the null hypothesis that there is no difference between the park-going frequencies of whites and nonwhites. </li>
+  
+  <li>Repeat the exercise, assuming that the variances are unequal. </li>
+  <li>Find the p-value associated with the tests in parts (a) and (b). </li>
+  <li>Associated with the test in part (a), find a 95% confidence interval for the difference in means. </li>
+  <li>Repeat parts (a)–(d), assuming sample sizes of n<sub>1</sub> = 24 and n<sub>2</sub> = 12. </li>
+</ol>  
+### <span style="color:red">Part a.</span> 
+```{r}
+sp <- sqrt((((20-1)*14.3)+((16-1)*12.0))/(20+16-2))
+t1 <- ((4.1-3.1)/sqrt(((sp^2)/20)+((sp^2)/16)))
+t1
+df1 <- 20 + 16 -2
+df1
+p1 <- pt(t1, df1, lower.tail = FALSE)
+p1
+if(p1 > 0.05){
+print("We cannot reject the null hypothesis")
+} else {
+print("We reject the null hypothesis")}
+```
+
+### <span style="color:red">Part b.</span> 
+```{r}
+t2 <- ((4.1-3.1)/(sqrt((14.3/20)+(12.0/16))))
+t2
+df2 <- 16 - 1
+df2
+p2 <- pt(t2, df2, lower.tail = FALSE)
+p2
+if(p2 > 0.05){
+print("We cannot reject the null hypothesis")
+} else {
+print("We reject the null hypothesis")}
+```
+
+### <span style="color:red">Part c.</span> 
+```{r}
+p1 <- pt(t1, df1, lower.tail = FALSE)
+p1
+p2 <- pt(t2, df2, lower.tail = FALSE)
+p2
+```
+p-value from part a.: **0.2095346**    
+p-value from part b.: **0.2108212**
+
+### <span style="color:red">Part d.</span> 
+```{r}
+spsqrd2 <- ((19*14.3)+(15*12))/(20+16-2)
+stderr <- sqrt((spsqrd2/20)+(spsqrd2/16))
+conf95 <- c(1 - (2.032*stderr), 1 + (2.032*stderr))
+conf95
+```
+95% confidence interval: **[-1.484194, 3.484194]**
+
+### <span style="color:red">Part e.</span> 
+Assume the variances are equal, and test the null hypothesis that there is no difference between the park-going frequencies of whites and nonwhites.
+```{r}
+sp2 <- sqrt((((24-1)*14.3)+((12-1)*12.0))/(24+12-2))
+t3 <- ((4.1-3.1)/sqrt(((sp^2)/24)+((sp^2)/12)))
+t3
+df3 <- 24 + 12 -2
+df3
+p3 <- pt(t3, df3, lower.tail = FALSE)
+p3
+if(p1 > 0.05){
+print("We cannot reject the null hypothesis")
+} else {
+print("We reject the null hypothesis")}
+```
+
+<brk>
+
+Repeat the excercise, assuming that the variances are unequal.
+```{r}
+t4 <- ((4.1-3.1)/(sqrt((14.3/24)+(12.0/12))))
+t4
+df4 <- 12 - 1
+df4
+p4 <- pt(t4, df4, lower.tail = FALSE)
+p4
+if(p2 > 0.05){
+print("We cannot reject the null hypothesis")
+} else {
+print("We reject the null hypothesis")}
+```
+
+<brk>
+
+Find the p-value associated with the tests.
+```{r}
+p3 <- pt(t3, df3, lower.tail = FALSE)
+p3
+p4 <- pt(t4, df4, lower.tail = FALSE)
+p4
+```
+p-value for assuming the variances are equal: **0.2215581**  
+p-value for assuming the variances are unequal: **0.222664**  
+
+<brk>
+
+Associated with the test assuming the variances are equal, find a 95% confidence interval for the differnce in means.
+```{r}
+spsqrd3 <- ((23*14.3)+(11*12))/(24+12-2)
+stderr2 <- sqrt((spsqrd3/24)+(spsqrd3/12))
+confint2 <- c(1 -(2.032*stderr2), 1 +(2.032*stderr2))
+confint2
+```
+95% confidence interval: **[-1.645103, 3.645103]**
+
+## <span style="color:blue">Question 5</span> 
+This is Exercise 9 of the textbook.
+
+A researcher suspects that the level of a particular stream’s pollutant is higher than the allowable limit of 4.2 mg/l. A sample of n = 17 reveals a mean pollutant level of = 6.4 mg/l, with a standard deviation of 4.4 mg/l. Is there sufficient evidence that the stream’s pollutant level exceeds the allowable limit? What is the p-value?  
+
+<brk>
+
+**Null hypothesis:** the stream's pollution level is within the allowable limit  
+**Alternative hypothesis:** the stream's pollution exceeds the allowable limit
+```{r}
+t5 <- (6.4 - 4.2) / (4.4/sqrt(17))
+t5
+df5 <- 17 -1
+df5
+p5 <- pt(t5, df5, lower.tail = FALSE)
+p5
+if(p5 > 0.05){
+print("We cannot reject the null hypothesis")
+} else {
+print("We reject the null hypothesis")}
+```
+p-value: **0.02794262**
+
+## <span style="color:blue">Question 6</span> 
+This is Exercise 13 of the textbook.
+
+Suppose we want to know whether the mean length of unemployment differs among the residents of two local communities. Sample information is as follows: 
+
+Community A: sample mean = 3.4 months,  s = 1.1 month,  n = 52 
+
+Community B: sample mean = 2.8 months, s = 0.8 month,  n = 62 
+
+Set up the null and alternative hypotheses. Use α = 0.05. Choose a particular test, and show the rejection regions on a diagram. Calculate the test statistic, and decide whether to reject the null hypothesis. (Do not assume that the two standard deviations are equal to one another – therefore a pooled estimate of s should not be found.)  
+
+<brk>
+
+**Null hypothesis:** the mean length of unemployment is the same among the residents of the two local communities.  
+**Alternative hypothesis:** the mean length of unemployment differs among the residents of the two local communities.
+
+
+```{r}
+curve(dnorm, xlim = c(-3, 3), from = -4, to =4, col = "steelblue4", lwd =2)
+xcord <- c(-4, seq(-4, -q95, 0.01), -q95)
+ycord <- c(0, dnorm(seq(-4, -q95, 0.01)), 0)
+xcord2 <- c(q95, seq(q95, 4, 0.01), 4)
+ycord2 <- c(0, dnorm(seq(q95, 4, 0.01)), 0)
+polygon(xcord, ycord, col = "steelblue2")
+polygon(xcord2, ycord2, col = "steelblue2")
+xcord3 <- c(-q95, seq(-q95, q95, 0.01), q95)
+ycord3 <- c(0, dnorm(seq(-q95, q95, 0.01)),0)
+polygon(xcord3, ycord3, col = "seagreen2")
+print("green region = accept the null hypothesis")
+print("blue regions = reject the null hypothesis")
+```
+
+```{r}
+t6 <- (3.4 - 2.8)/sqrt((1.21/52)+(.64/62))
+t6
+cv <- 1.96
+print("The critical value is 1.96")
+if(t6 < cv){
+print("We cannot reject the null hypothesis")
+} else {
+print("We reject the null hypothesis")}
+```
+
+## <span style="color:blue">Question 7</span> 
+This is Exercise 15 of the textbook.
+
+Find the 90% and 95% confidence intervals for the following mean stream link lengths: 
+
+100, 426, 322, 466, 112, 155, 388, 1155, 234, 324, 556, 221, 18, 133, 177, 441.
+```{r}
+link <- c(100, 426,322,466,112,155,388,1155,234,324,556,221,18,133,177,441)
+mean <- mean(link)
+error <- sd(link)/sqrt(length(link))
+conf.90 <- c(mean-1.753*error, mean+1.753*error)
+conf.90
+conf.95 <- c(mean - (2.131*error), mean + (2.131*error))
+conf.95
+```
+The 90% confidence interval: **[208.789, 444.711]**  
+The 95% confidence interval: **[183.353, 470.147]**
+
+## <span style="color:blue">Question 8</span> 
+This is Exercise 16 of the textbook.
+
+A researcher surveys 50 individuals in Smithville and 40 in Amherst, finding that 30% of Smithville residents moved last year, while only 22% of Amherst residents did. Is there enough evidence to conclude that mobility rates in the two communities differ? Use a two-tailed alternative, and α = 0.10. Again, find the p-value and a 90% confidence interval for the difference in proportions.  
+
+<brk>
+
+**Null hypothesis:** the mobility rates in the two communities are the same.  
+**Alternative hypothesis:** the mobility rates in the two communities differ.
+
+```{r}
+pool <- (50*.3 + 40*.22)/(50+40)
+prop <- sqrt(((pool*(1-pool))/50) + ((pool*(1-pool))/40))
+z8 <- (.3-.22)/prop
+z8
+p8 <- 2*pnorm(-abs(z8))
+p8
+if(p8 > 0.05){
+print("We cannot reject the null hypothesis")
+} else {
+print("We reject the null hypothesis")}
+confprop <- sqrt(((.3*(1-.3))/50) + ((.22*(1-.22))/40))
+conf90.8 <- c((10)- q90*confprop, (10) + q90*confprop)
+conf90.8
+```
+p-value: **0.3925047**  
+The 90% confidence interval: **[9.848441, 10.151559]**
+
+## <span style="color:blue">Question 9</span> 
+This is Exercise 17 of the textbook.
+
+A survey of two towns is carried out to see whether there are differences in levels of education. Town A has a mean of 12.4 years of education among its residents; Town B has a mean of 14.4 years. Fifteen residents were surveyed in each town. The sample standard deviation was 3.0 in Town A, and 4.0 in Town B. Is there a significant difference in education between the two towns?
+
+<ol type="a">
+  <li>Assume the variances are equal. </li>
+  <li>Assume the variances are not equal. </li>
+</ol>
+
+In each case, state the null and alternative hypotheses, and test the null hypothesis, using α = 0.05. Find the p-values and a 95% confidence interval for the difference.  
+
+### <span style="color:red">Part a.</span> 
+**Null hypothesis:** there is no significant difference in education levels between the two towns.  
+**Alternative hypothesis:** there is a significant difference in education levels between the two towns.
+```{r}
+sp9 <- sqrt(((14*9)+(14*16))/(15+15-2))
+t9 <- (14.4 - 12.4)/sqrt(((sp9^2)/15) + ((sp9^2)/15))
+t9
+p9 <- 2*pt(t9, 28, lower.tail = FALSE)
+p9
+if (p9 > 0.05){
+print("We cannot reject the null hypothesis")
+} else {
+print("We reject the null hypothesis")}
+error9 <- sqrt(((sp9^2)/15)+((sp9^2)/15))
+conf9 <- c(2-1.701*error9, 2+1.701*error9)
+conf9
+```
+The 95% confidence interval is: **[-0.1959816, 4.1959816]**  
+
+### <span style="color:red">Part b.</span> 
+**Null hypothesis:** there is no significant difference in education levels between the two towns.  
+**Alternative hypothesis:** there is a significant difference in education levels between the two towns.
+```{r}
+t9b <- (14.4-12.4)/sqrt(((3^2)/15)+((4^2)/15))
+t9b
+p9b <- 2*pt(t9b, 14, lower.tail = FALSE)
+p9b
+p9b
+if (p9b > 0.05){
+print("We cannot reject the null hypothesis")
+} else {
+print("We reject the null hypothesis")}
+error9b <- sqrt(((3^2)/15)+((4^2)/15))
+conf9b <- c(2-1.761*error9b, 2+1.761*error9b)
+conf9b
+```
+The 95% confidence interval: **[-0.2734412, 4.2734412]**  
+
+## <span style="color:blue">Question 10</span>  
+This is Exercise 20 of the textbook.
+
+A survey of n = 50 people reveals that the proportion of residents in a community who take the bus to work is 0.15. Is this significantly different from the statewide average of 0.10? Use a Type I error probability of 0.05.  
+
+<brk>
+
+**Null hypothesis:** this is not significantly different from the statewide average.   
+**Alternative hypothesis:** this is significantly different from the statewide average.
+```{r}
+z10 <- (.15-.1)/sqrt((.1*(1-.1))/50)
+z10
+p10 <- 2*pnorm(-abs(z10))
+p10
+if (p10 > 0.05){
+print("We cannot reject the null hypothesis")
+} else {
+print("We reject the null hypothesis")}
+```
+
