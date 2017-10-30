@@ -1,0 +1,271 @@
+---
+title: "Geog533 Lab 6 - ANOVA"
+author: "Michael Kezner"
+date: "October 26, 2017"
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+Complete the following exercises in Chapter 6 (Analysis of Variance) of the textbook pages 199-203. For each question, you need to specify the null hypothesis and why you accept or reject the null hypothesis.
+
+
+## <span style="color:blue">Question 1</span>
+This is Exercise 2 in Chapter 6 of the Textbook [R].
+
+### <span style="color:red">Problem</span>
+Assume that an analysis of variance is conducted for a study where there are $N = 50$ observations and $k = 5$ categories. Fill in the blanks in the following ANOVA table:
+
+|          | Sum of squares  | Degrees of freedom |  Mean square   |       *F*       |
+|----------|-----------------|--------------------|----------------|-----------------|
+| Between  |                 |                    |      116.3     |                 |
+| Within   |       2000      |                    |                |                 |
+| Total    |                 |                    |                |                 |
+
+
+### <span style="color:green">Solution</span>
+```{r}
+N <- 50
+k <- 5
+sumb <- 116.3*(k-1)
+mw <- round(2000/(N-k), digits = 2)
+f1 <- round(116.3/mw, digits = 2)
+ts1 <- 2000+sumb
+```
+
+|          | Sum of squares  | Degrees of freedom |  Mean square   |       *F*       |
+|----------|-----------------|--------------------|----------------|-----------------|
+| Between  |      `r sumb`   |        `r k-1`     |      116.3     |      `r f1`     |
+| Within   |       2000      |        `r N-k`     |     `r mw`     |                 |
+| Total    |     `r ts1`     |                    |                |                 |
+
+
+
+
+## <span style="color:blue">Question 2</span>
+This is Exercise 6 in Chapter 6 of the Textbook [R].
+
+### <span style="color:red">Problem</span> 
+Is there a significant difference between the distances moved by low- and high-income individuals? Twelve respondents in each of the income categories are interviewed, with the following results for the distances associated with residential moves:
+
+| Respondent  | Low income  | High income |
+|-------------|-------------|-------------|
+|     1       |      5      |     25      |
+|     2       |      7      |     24      |
+|     3       |      9      |     8       |
+|     4       |      11     |     2       |
+|     5       |      13     |     11      |
+|     6       |      8      |     10      |
+|     7       |      10     |     10      |
+|     8       |      34     |     66      |
+|     9       |      17     |     113     |
+|     10      |      50     |     1       |
+|     11      |      17     |     3       |
+|     12      |      25     |     5       |
+|     Mean    |      17.17  |     23.17   |
+|  Std. dev.  |      13.25  |     33.45   |
+
+
+Test the null hypothesis of homogeneity of variances by forming the ratio $s_1^2 / s_2^2$ which has an F-ratio with $n_1 – 1$ and $n_2 – 1$ degrees of freedom. Then use ANOVA (with $\alpha = 0.10$) to test whether there are differences in the two population means. Set up the null and alternative hypotheses, choose a value of α and a test statistic, and test the null hypothesis. What assumption of the test is likely not satisfied?
+
+### <span style="color:green">Solution</span>
+```{r}
+13.25^2/33.45^2
+low2 <- c(5,7,9,11,13,8,10,34,17,50,17,25)
+high2 <- c(25,24,8,2,11,10,10,66,113,1,3,5)
+income <- c(low2, high2)
+group <- c(rep("low2", 12), rep("high2", 12))
+frame2 <- data.frame(income, group)
+m2 <- aov(income~group,data = frame2)
+summary(m2)
+f2 <- 0.334
+crit2 <- qf(.90, 1, 22)
+crit2
+if(f2>crit2) {
+print("We reject the null hypothesis that there is a significant difference between distances moved")
+} else {
+print("We cannot reject the null hypothesis")
+}
+```
+The assumption of homogenity is most likely not met.
+
+## <span style="color:blue">Question 3</span>
+This is Exercise 9 in Chapter 6 of the Textbook [R].
+
+### <span style="color:red">Problem</span>
+A sample is taken of incomes in three neighborhoods, yielding the following data: 
+
+|          |        A        |          B         |       C        | Overall (Combined sample) |
+|----------|-----------------|--------------------|----------------|---------------------------|
+| N        |        12       |          10        |        8       |             30            |
+| Mean     |       43.2      |          34.3      |        27.2    |             35.97         |
+| Std. dev.|       36.2      |          20.3      |        21.4    |             29.2          |
+
+
+Use analysis of variance (with α = 0.05) to test the null hypothesis that the means are equal.
+
+
+### <span style="color:green">Solution</span>
+```{r}
+N3 <- 30
+k3 <- 3
+wss3 <- ((12-1)*36.2^2)+((10-1)*20.3^2)+((8-1)*21.4^2)
+meanwss3 <- wss3/(N3-k3)
+tss3 <- (N3-1)*29.2^2
+bss3 <- tss3-wss3
+meanbss3 <- bss3/(k3-1)
+f3 <- meanbss3/meanwss3
+f3
+crit3 <- qf(.95, 2,27)
+if(f3>crit3) {
+print("We reject the null hypothesis that the means are equal")
+} else {
+print("We cannot reject the null hypothesis")
+}
+```
+
+
+
+## <span style="color:blue">Question 4</span>
+This is Exercise 10 in Chapter 6 of the Textbook [R].
+
+### <span style="color:red">Problem</span>
+Use the Kruskal–Wallis test (with α = 0.05) to determine whether you should reject the null hypothesis that the means of the four columns of data are equal:
+
+|   Col 1  |       Col 2     |        Col 3       |       Col 4    |
+|----------|-----------------|--------------------|----------------|
+|   23.1   |       43.1      |        56.5        |       10002.3  |
+|   13.3   |       10.2      |        32.1        |       54.4     |
+|   15.6   |       16.2      |        43.3        |       8.7      |
+|   1.2    |       0.2       |        24.4        |       54.4     |
+
+
+### <span style="color:green">Solution</span>
+```{r}
+col1 <- c(23.1,13.3,15.6,1.2)
+col2 <- c(43.1,10.2,16.2,0.2)
+col3 <- c(56.5,32.1,43.3,24.4)
+col4 <- c(10002.3, 54.4,8.7,54.4)
+columns <- c(col1,col2,col3,col4)
+group4 <- c(rep("col1",4),rep("col2",4),rep("col3",4),rep("col4",4))
+frame4 <- data.frame(columns,group4)
+kruskal.test(columns~group4,data = frame4)
+crit4 <- qchisq(.95, 3)
+crit4
+chi4 <- 6.3844
+if(chi4>crit4) {
+print("We reject the null hypothesis that the means of the four columns are equal")
+} else {
+print("We cannot reject the null hypothesis")
+}
+```
+
+
+## <span style="color:blue">Question 5</span>
+This is Exercise 12 in Chapter 6 of the Textbook [R].
+
+### <span style="color:red">Problem</span>
+A researcher wishes to know whether distance traveled to work varies by income. Eleven individuals in each of three income groups are surveyed. The resulting data are as follows (in commuting miles, one-way):
+
+```{r}
+## This is the script to generate the table. Do not write your answer inside in this block.
+Observations <- seq(1:11)
+Low <- c(5,4,1,2,3,10,6,6,4,12,11)
+Medium <- c(10,10,8,6,5,3,16,20,7,3,2)
+High <- c(8,11,15,19,21,7,7,4,3,17,18)
+
+df <- data.frame(Observations,Low,Medium,High)
+library(knitr)
+kable(df)
+```
+
+Use analysis of variance (with α = 0.05) to test the hypothesis that commuting distances do not vary by income. Also evaluate (using R and the Levene test) the assumption of homoscedasticity. Finally, lump all of the data together and produce a histogram, and comment on whether the assumption of normality appears to be satisfied.
+
+
+### <span style="color:green">Solution</span>  
+
+<brk>
+
+#### <span style="color:purple">Analysis of Variance</span> 
+```{r, message=FALSE, warning=FALSE}
+income5 <- c(Low, Medium, High)
+group5 <- c(rep("Low", 11), rep("Medium", 11), rep("High", 11))
+frame5 <- data.frame(income5, group5)
+m5 <- aov(income5~group5, data = frame5)
+summary(m5)
+f5 <- 3.493
+crit5 <- qf(.95, 2, 30)
+crit5
+if(f5>crit5) {
+print("We reject the null hypothesis that commuting distances do not vary by income")
+} else {
+print("We cannot reject the null hypothesis")
+}
+```
+
+<brk>
+
+#### <span style="color:purple">Homoscedasticity Test</span> 
+```{r, message=FALSE, warning=FALSE}
+library(car)
+leveneTest(income5~group5,data = frame5)
+f5b <- 2.1694
+if(f5b>crit5) {
+print("We reject the null hypothesis that the vairances are equal")
+} else {
+print("We cannot reject the null hypothesis, therefore the variances are equal")
+}
+```
+
+<brk>
+
+#### <span style="color:purple">Normality Test</span> 
+```{r}
+hist(income5)
+shapiro.test(income5)
+p5c <- 0.009099
+if(p5c>0.05) {
+print("the data appears to be normally distributed")
+} else {
+print("the data is likely not normally distrubuted")
+}
+```
+
+
+## <span style="color:blue">Question 6</span>
+This is Exercise 13 in Chapter 6 of the Textbook [R].
+
+### <span style="color:red">Problem</span>
+Data are collected on automobile ownership by surveying residents in central cities, suburbs and rural areas. The results are:
+
+|                      | Central cities  |      Suburbs       |  Rural areas   |
+|----------------------|-----------------|--------------------|----------------|
+|Number of observations|      10         |        15          |       15       |
+|      mean            |      1.5        |        2.6         |       1.2      |
+|      Std. dev        |      1.0        |        1.1         |       1.2      |  
+|Overall mean: 1.725   |                 |                    |                |  
+|Overall std.dev: 1.2  |                 |                    |                |   
+
+
+Test the null hypothesis that the means are equal in all three areas.
+
+### <span style="color:green">Solution</span>
+```{r}
+N6 <- 40
+k6 <- 3
+wss6 <- ((10-1)*1^2)+((15-1)*1.1^2)+((15-1)*1.2^2)
+meanwss <- wss6/(N6-k6)
+tss6 <- (N6-1)*1.2^2
+bss6 <- tss6-wss6
+meanbss <- bss6/(k6-1)
+f6 <- meanbss/meanwss
+f6
+crit6 <- qf(.95, 2, 37)
+if(f6>crit6) {
+print("We reject the null hypothesis that the means are equal in all three areas")
+} else {
+print("We cannot reject the null hypothesis")
+}
+```
+
