@@ -1,0 +1,320 @@
+---
+title: "Geog533 Lab 7 - Correlation"
+author: "Michael Kezner"
+date: "November 2, 2017"
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+## <span style="color:blue">Question 1</span>
+This is Exercise 1 in Chapter 7 of the Textbook [R].
+
+### <span style="color:red">Problem 1a</span>
+Find the correlation coefficient, *r*, for the following sample data on income and education:
+```{r}
+library(knitr)
+obs <- seq(1:5)
+income1 <- c(30,28,52,40,35)
+edu <- c(12,13,18,16,17)
+df <- data.frame(obs,income1,edu)
+names(df) <- c("Observation","Income ($*1000)","Education (Years)")
+kable(df)
+```
+
+### <span style="color:green">Solution 1a</span>
+```{r}
+cor1a <- cor(income1, edu, method = "pearson")
+round(cor1a, 3)
+```
+
+
+### <span style="color:red">Problem 1b</span>
+Test the null hypothesis ρ = 0.
+
+### <span style="color:green">Solution 1b</span>
+```{r}
+cor1b <- cor.test(income1, edu, method = "pearson")
+cor1b
+p1b <- cor1b$p.value
+if(p1b < 0.05){
+print("We reject the null hypothesis")
+} else {
+print("We fail to reject the null hypothesis")}
+```
+
+
+### <span style="color:red">Problem 1c</span>
+Find Spearman’s rank correlation coefficient for these data.
+
+### <span style="color:green">Solution 1c</span>
+```{r}
+r1c <- cor(income1, edu, method = "spearman")
+r1c
+```
+
+
+### <span style="color:red">Problem 1d</span>
+Test whether the observed value of rs from part (c) is significantly different from zero.
+
+### <span style="color:green">Solution 1d</span>
+```{r}
+test1d <- cor.test(income1, edu, method = "spearman")
+test1d
+p1d <- test1d$p.value
+if(p1d < 0.05){
+print("We reject the null hypothesis")
+} else {
+print("We fail to reject the null hypothesis")}
+```
+
+
+
+## <span style="color:blue">Question 2</span>
+This is Exercise 3 in Chapter 7 of the Textbook [R].
+
+### <span style="color:red">Problem</span>
+The distribution of the t-statistic for testing the significance of a correlation coefficient has n – 2 degrees of freedom. If the sample size is 36 and α = 0.05, what is the smallest absolute value a correlation coefficient must have to be significant? What if the sample size is 80?
+
+### <span style="color:green">Solution</span>
+
+#### <span style="color:purple">Sample Size of 36</span>
+```{r}
+df2a <- 36-2
+crit2a <- qt(.975, df2a)
+rcrit2a <- crit2a/sqrt(df2a+crit2a^2)
+round(rcrit2a, 3)
+```
+
+#### <span style="color:purple">Sample size of 80</span>
+```{r}
+df2b <- 80-2
+crit2b <- qt(.975, df2b)
+rcrit2b <- crit2b/sqrt(df2b+crit2b^2)
+round(rcrit2b, 3)
+```
+
+## <span style="color:blue">Question 3</span>
+This is Exercise 4 in Chapter 7 of the Textbook [R].
+
+### <span style="color:red">Problem</span>
+Find the correlation coefficient for the following data:
+
+```{r}
+library(knitr)
+Obs <- seq(1:4)
+X <- c(2,8,9,7)
+Y <- c(6,6,10,4)
+df <- data.frame(Obs,X,Y)
+kable(df)
+```
+
+### <span style="color:green">Solution</span>
+```{r}
+r3 <- cor(X,Y,method = "pearson")
+round(r3, 3)
+```
+
+
+
+## <span style="color:blue">Question 4</span>
+This is Exercise 6 in Chapter 7 of the Textbook [R].
+
+### <span style="color:red">Problem</span>
+Find the correlation coefficient between median annual income in the United States and the number of horse races won by the leading jockey, for the period 1984–1995. Test the hypothesis that the true correlation coefficient is equal to zero. Interpret your results.
+
+```{r}
+year <- 1984:1994
+income2 <- c(35165,35778,37027,37256,37512,37997,37343,36054,35593,35241,35486)
+races <- c(399,469,429,450,474,598,364,430,433,410,317)
+df <- data.frame(year,income2,races)
+names(df) <- c("Year","Median income","Number of races won by leading jockey")
+kable(df)
+```
+
+
+### <span style="color:green">Solution</span>
+```{r}
+cor4 <- cor.test(income2, races, method = "pearson")
+cor4
+round(cor4$estimate,3)
+p4 <- cor4$p.value
+if(p4 < 0.05){
+print("We reject the null hypothesis")
+} else {
+print("We fail to reject the null hypothesis")}
+```
+Because we fail to reject the null hypothesis, there is **no correlation** between median annual income in the U.S. and number of horse races won by the leading jockey.
+
+
+## <span style="color:blue">Question 5</span>
+This is Exercise 7 in Chapter 7 of the Textbook [R].
+
+### <span style="color:red">Problem</span>
+For the following ranked data, find Spearman’s r, and then test the null hypothesis (using a Type I error probability of 0.10) that the true correlation is equal to zero.
+
+```{r}
+library(knitr)
+obs <- 1:6
+x <- c(1,2,5,6,11,12)
+y <- c(8,4,12,3,10,7)
+df <- data.frame(obs,x,y)
+names(df) <- c("Observation","Rank of x","Rank of y")
+kable(df)
+```
+
+
+### <span style="color:green">Solution</span>
+```{r}
+test5 <- cor.test(x,y,method = "spearman")
+test5
+round(test5$estimate,3)
+p5 <- 1
+if(p5 < .10){
+print("We reject the null hypothesis")
+} else {
+print("We fail to reject the null hypothesis")}
+```
+
+
+
+## <span style="color:blue">Question 6</span>
+This is Exercise 8 in Chapter 7 of the Textbook [R].
+
+### <span style="color:red">Problem</span>
+Find Pearson’s r for the following data, and then test the null hypothesis that the correlation coefficient is equal to zero. Use a Type I error probability of 0.05.
+
+```{r}
+library(knitr)
+obs <- 1:6
+x6 <- c(3.2,2.4,1.6,8.3,7.2,5.1)
+y6 <- c(6.2,7.3,8.1,2.6,6.3,4.3)
+df <- data.frame(obs,x6,y6)
+names(df) <- c("Observation","x","y")
+kable(df)
+```
+
+
+### <span style="color:green">Solution</span>
+```{r}
+test6 <- cor.test(x6,y6,method = "pearson")
+test6
+round(test6$estimate, 3)
+p6 <- test6$p.value
+if(p6 < 0.05){
+print("We reject the null hypothesis")
+} else {
+print("We fail to reject the null hypothesis")}
+```
+
+
+## <span style="color:blue">Question 7</span>
+This is Exercise 9 in Chapter 7 of the Textbook [R].
+
+### <span style="color:red">Problem</span>
+Using R and the Milwaukee dataset, find the correlation between number of bedrooms and lot size.
+
+### <span style="color:green">Solution</span>
+```{r}
+mil <- read.csv("Milwaukee.csv")
+cor7 <- cor(mil$Bedrms,mil$LotSize, method = "pearson")
+round(cor7, 3)
+```
+
+
+## <span style="color:blue">Question 8</span>
+This is Exercise 10 in Chapter 7 of the Textbook [R].
+
+### <span style="color:red">Problem</span>
+Using R and the Hypothetical UK Housing Prices dataset, find the correlation between floor area and number of bedrooms.
+
+### <span style="color:green">Solution</span>
+```{r}
+housing <- read.csv("UK_Housing.csv")
+cor8 <- cor(housing$floorarea,housing$bedrooms, method = "pearson")
+round(cor8, 3)
+```
+
+
+## <span style="color:blue">Problem 9</span>
+Use the **cars** data frame in the **datasets** package to perform the following tasks: 
+
+### <span style="color:red">Problem 9a</span>
+Plot a scatterplot for the data frame (x: speed, y: dist)
+
+### <span style="color:green">Solution 9a</span>
+```{r}
+library(datasets)
+frame <- cars
+xs <- frame$speed
+yd <- frame$dist
+plot(xs, yd, main = "Cars", xlab = "Speed", ylab = "Distance", pch = 16)
+```
+
+
+### <span style="color:red">Problem 9b</span>
+How many rows in the data frame?
+
+### <span style="color:green">Solution 9b</span>
+```{r}
+nrow(frame)
+```
+
+
+### <span style="color:red">Problem 9c</span>
+Calculate Pearson’s correlation coefficient using the equation below:
+$$r=\frac{\sum_{n}^{i=1}(x_i-\bar{x})(y_i-\bar{y})}{(n-1)s_{x}s_{y}}$$
+
+### <span style="color:green">Solution 9c</span>
+```{r}
+xmean <- mean(xs)
+ymean <- mean(yd)
+x9c <- xs - xmean
+y9c <- yd - ymean
+sum9c <- sum(x9c*y9c)
+s9x <- sd(xs)
+s9y <- sd(yd)
+r9c <- sum9c/(49*s9x*s9y)
+round(r9c,3)
+```
+
+
+### <span style="color:red">Problem 9d</span>
+Use the cor.test() function to find Pearson’s correlation coefficient and compare it to the one from part (c)
+
+### <span style="color:green">Solution 9d</span>
+```{r}
+test9d <- cor.test(xs, yd, method = "pearson")
+test9d
+round(test9d$estimate,3)
+```
+The correlation coefficient from using the equation in 9c is **the same as** the correlation coefficient found by running the cor.test() function
+
+### <span style="color:red">Problem 9e</span>
+Calculate Spearman’s rank correlation coefficient using the equation below:
+$$r_{S} = 1 - \frac{6\sum_{i=1}^{n}d_{i}^{2}}{n^3-n}$$
+
+### <span style="color:green">Solution 9e</span>
+```{r}
+frame$rankspeed <- rank(xs)
+frame$rankdistance <- rank(yd)
+frame$d <- frame$rankspeed - frame$rankdistance
+num9 <- 6*sum(frame$d^2)
+den9 <- (50^3)-50
+r9e <- 1-(num9/den9)
+round(r9e, 3)
+```
+
+
+
+### <span style="color:red">Problem 9f</span>
+Use the cor.test() function to find Spearman’s rank correlation coefficient and compare it to the one from part (e)
+
+### <span style="color:green">Solution 9f</span>
+```{r, message=FALSE, warning=FALSE}
+test9f <- cor.test(xs,yd, method = "spearman")
+test9f
+round(test9f$estimate,3)
+```
+The correlation coefficient obtained from using the equation in 9e is **0.001 greater than** the correlation coefficient obtained using the cor.test() function
