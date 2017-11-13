@@ -1,0 +1,272 @@
+---
+title: "Geog533 Lab 8"
+author: "Michael Kezner"
+date: "November 9, 2017"
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+Complete the following exercises in Chapter 8 (Introduction to Regression Analysis) of the textbook [R] pages 247-250. 
+
+## <span style="color:red">Question 1</span>
+
+This is Exercise 1 in Chapter 8 of the Textbook [R].
+
+A regression of weekly shopping trip frequency on annual income (data entered in thousands of dollars) is performed on data collected from 24 respondents. The results are summarized below:
+
+* Intercept: 0.46
+* Slope: 0.19
+
+### <span style="color:blue">Problem 1(a)</span>
+|          | Sum of squares  | Degrees of freedom |  Mean square   |       *F*       |
+|----------|-----------------|--------------------|----------------|-----------------|
+|Regression|                 |                    |                |                 |
+| Residual |       1.7       |                    |                |                 |
+| Total    |       2.3       |                    |                |                 |
+
+
+Fill in the blanks in the ANOVA table.
+
+### <span style="color:green">Solution 1(a)</span>
+```{r}
+N <- 24
+SSr1 <- 2.3-1.7
+dfres1 <- N-2 
+dftot1 <- N-1
+MSres1 <- 1.7/dfres1
+MSres1.1 <- round(MSres1, 3)
+F1 <- round(SSr1/MSres1, 2)
+
+```
+
+
+|          | Sum of squares  | Degrees of freedom |  Mean square   |       *F*       |
+|----------|-----------------|--------------------|----------------|-----------------|
+|Regression|     `r SSr1`    |          1         |     `r SSr1`   |     `r F1`      |
+| Residual |       1.7       |   `r dfres1`       |   `r MSres1.1` |                 |
+| Total    |       2.3       |       `r dftot1`   |                |                 |
+
+
+### <span style="color:blue">Problem 1(b)</span>
+What is the predicted number of weekly shopping trips for someone making $50,000/year?
+
+### <span style="color:green">Solution 1(b)</span>
+```{r}
+0.46+(0.19*50)
+```
+
+
+### <span style="color:blue">Problem 1(c)</span>
+In words, what is the meaning of the coefficient 0.19?
+
+### <span style="color:green">Solution 1(c)</span>
+For every dollar a person makes in income, they will go on approximately 0.19 shopping trips per week.
+
+### <span style="color:blue">Problem 1(d)</span>
+Is the regression coefficient significantly different from zero? How do you know?
+
+### <span style="color:green">Solution 1(d)</span>
+```{r}
+crit1 <- qf(.95,1,22)
+if(F1 < crit1){
+print("We fail to reject the null hypothesis")
+} else {
+print("We reject the null hypothesis, therefore the regression coefficient is signigicantly different than zero")}
+print("We know this because the F value is greater than the critical F value")
+```
+
+
+
+### <span style="color:blue">Problem 1(e)</span>
+What is the value of the correlation coefficient?
+
+### <span style="color:green">Solution 1(e)</span>
+```{r}
+r1 <- sqrt(SSr1/2.3)
+round(r1,3)
+```
+
+
+
+
+
+## <span style="color:red">Question 2</span>
+
+This is Exercise 6 in Chapter 8 of the Textbook [R].
+
+The following data are collected in an effort to determine whether snowfall is dependent upon elevation: 
+
+| Snowfall (inches) | Elevation (feet) |
+|-------------------|------------------|
+|       36          |       400        |
+|       78          |       800        |
+|       11          |       200        |
+|       45          |       675        |
+
+Using R, show your work on exercises (a) through (g).
+
+### <span style="color:blue">Problem 2(a)</span>
+Find the regression coefficients (the intercept and the slope coefficient).
+
+### <span style="color:green">Solution 2(a)</span>
+```{r}
+snowfall <- c(36,78,11,45)
+elevation <- c(400,800,200,675)
+m <- lm(snowfall~elevation)
+summary(m)
+Intercept <- -7.63721
+round(Intercept, 3)
+Slope <- 0.09665
+round(Slope, 3)
+```
+
+
+### <span style="color:blue">Problem 2(b)</span>
+Estimate the standard error of the residuals about the regression line.
+
+### <span style="color:green">Solution 2(b)</span>
+```{r}
+sterr2 <- 11.25
+sterr2
+```
+
+
+### <span style="color:blue">Problem 2(c)</span>
+Test the hypothesis that the regression coefficient associated with the independent variables is equal to zero. Also place a 95% confidence interval on the regression coefficient.
+
+### <span style="color:green">Solution 2(c)</span>
+```{r}
+F2 <- 16.7
+crit2 <- qf(.95,1,2)
+if(F2 < crit2){
+print("We fail to reject the null hypothesis that the regression coefficient is equal to zero")
+} else {
+print("We reject the null hypothesis")}
+q95 <- qnorm(0.975)
+conf2 <- c(F2-q95*sterr2, F2+q95*sterr2)
+conf2
+```
+
+
+### <span style="color:blue">Problem 2(d)</span>
+Find the value of $r^2$.
+
+### <span style="color:green">Solution 2(d)</span>
+```{r}
+a <- cor.test(elevation,snowfall, method = "pearson")
+rsqrd2 <- a$estimate^2
+round(rsqrd2, 4)
+```
+
+
+### <span style="color:blue">Problem 2(e)</span>
+Make a table of the observed values, predicted values, and the residuals.
+
+### <span style="color:green">Solution 2(e)</span>
+```{r}
+q2 <- data.frame(snowfall,elevation)
+q2$predicted <- round(m$fitted.values,3)
+q2$residuals <- round(m$residuals,3)
+names(q2) <- c("Snowfall (Inches)", "Elevation (Feet)", "Predicted Values", "Residuals")
+library(knitr)
+kable(q2)
+```
+
+
+### <span style="color:blue">Problem 2(f)</span>
+Prepare an analysis of variance table portraying the regression results.
+
+### <span style="color:green">Solution 2(f)</span>
+```{r}
+anova(m)
+```
+
+
+|          | Sum of squares  | Degrees of freedom |  Mean square   |       *F*       |
+|----------|-----------------|--------------------|----------------|-----------------|
+|Regression|     2047.77     |         1          |      2047.77   |       16.173    |
+| Residual |    253.23       |         2          |      126.61    |                 |
+| Total    |     2301        |         3          |                |                 |
+
+### <span style="color:blue">Problem 2(g)</span>
+Graph the data and the regression line.
+
+### <span style="color:green">Solution 2(g)</span>
+```{r}
+plot(elevation, snowfall)
+abline(m, col = "red", lwd = 2)
+segments(elevation,fitted(m),elevation,snowfall,col="blue",lty = "dashed")
+```
+
+
+
+
+## <span style="color:red">Question 3</span>
+
+This is Exercise 10 in Chapter 8 of the Textbook [R].
+
+Use R and the [Milwaukee dataset](http://spatial.binghamton.edu/geog533/data/Milwaukee_Sales.csv) to:
+
+### <span style="color:blue">Problem</span>
+perform a regression using sales price as the dependent variable and lot size as the independent variable.
+
+### <span style="color:green">Solution</span>
+```{r}
+url = "http://spatial.binghamton.edu/geog533/data/Milwaukee_Sales.csv"
+mil <- read.csv(url)
+u <- lm(mil$SalePrice~mil$LotSize)
+summary(u)
+```
+
+
+
+## <span style="color:red">Question 4</span>
+
+This is Exercise 11 in Chapter 8 of the Textbook [R].
+
+Use R and the Hypothetical [UK Housing Prices dataset](http://spatial.binghamton.edu/geog533/data/UK_Housing.csv) to:
+
+### <span style="color:blue">Problem 4(a)</span> 
+perform a regression using house price as the dependent variable, and number of bedrooms as the independent variable;
+
+### <span style="color:green">Solution 4(a)</span>
+```{r}
+url1 = "http://spatial.binghamton.edu/geog533/data/UK_Housing.csv"
+uk <- read.csv(url1)
+z <- lm(uk$price~uk$bedrooms)
+summary(z)
+```
+
+
+### <span style="color:blue">Problem 4(b)</span>
+repeat part (a), using the number of bathrooms as the independent variable, and comment on the results.
+
+### <span style="color:green">Solution 4(b)</span>
+```{r}
+v <- lm(uk$price~uk$bathrooms)
+summary(v)
+```
+While the intercept is higher than that of part (a), the slope is lower. This means that when looking at the start, housing prices are higher for houses with more bathrooms but as the housing price increases, the number of bedrooms the house has goes up faster than the number of bathrooms. 
+
+## <span style="color:red">Question 5</span>
+
+### <span style="color:blue">Problem</span>
+Download the [hometown.csv](http://spatial.binghamton.edu/geog533/data/hometown.csv), append your name and hometown coordinates to the csv, then use [leaflet](https://rstudio.github.io/leaflet/) to create a web map (10 pt.)
+
+### <span style="color:green">Solution</span>
+```{r}
+hometowns <- read.csv("hometowns.csv")
+library(leaflet)
+l <- leaflet(width = "100%") %>%
+  addTiles() %>%
+  addProviderTiles(provider = "Esri.WorldStreetMap",group = "World StreetMap") %>%
+  addProviderTiles(provider = "Esri.WorldImagery",group = "World Imagery") %>%
+  addLayersControl(
+    baseGroups = c("OSM (default)","World StreetMap", "World Imagery"),
+    options = layersControlOptions(collapsed = FALSE)) %>%
+  addMarkers(l, lng = hometowns$longitude, lat=hometowns$latitude, popup = hometowns$popup, clusterOptions = markerClusterOptions())
+l
+```
+
