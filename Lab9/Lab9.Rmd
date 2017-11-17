@@ -1,0 +1,266 @@
+---
+title: <span style="color:darkorchid">Geog533 Lab 9</span>
+author: "Michael Kezner"
+date: "November 15, 2017"
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+Complete the following exercises in Chapter 9 (More on Regression) of the textbook pages 286-287. 
+
+
+## <span style="color:blue">Question 1</span>
+
+This is Exercise 7 in Chapter 9 of the Textbook [R].
+
+The following results were obtained from a regression of $n = 14$ housing prices (in dollars) on median family income, size of house, and size of lot:
+
+```{r, echo=FALSE}
+library(knitr)
+col1 <- c("Regression SS:","Residual SS:","Total SS:")
+col2 <- c("4234","3487","")
+col3 <- c("3","","")
+col4 <- c("","","")
+col5 <- c("","","")
+df <- cbind(col1,col2,col3,col4,col5)
+colnames(df) <- c("","Sum of squares","df","Mean square","F")
+kable(df)
+```
+
+```{r, echo=FALSE}
+library(knitr)
+col1 <- c("Median family income","Size of house (sq.ft)","Size of lot (sq.ft)","Constant")
+col2 <- c("1.57","23.4","-9.5","40,000")
+col3 <- c("0.34","11.2","7.1","1000")
+col4 <- c("1.3","2.9","11.3","")
+df <- cbind(col1,col2,col3,col4)
+colnames(df) <- c("","Coefficient (b)","Standard error (sb)","VIF")
+kable(df)
+```
+
+
+### <span style="color:red">Problem 1(a)</span>
+
+Fill in the blanks.
+
+### <span style="color:green">Solution 1(a)</span>
+
+```{r}
+n <- 14
+tot1 <- 4234+3487
+resdf <- n- 2
+totdf <- n-1
+regmean <- 4234/3
+reg1 <- round(regmean,3)
+resmean <- 3487/resdf
+res1 <- round(resmean,3)
+f1 <- regmean/resmean
+fr <- round(f1,3)
+```
+
+|             | Sum of squares  |          df        |  Mean square   |      F       |
+|-------------|-----------------|--------------------|----------------|--------------|
+|Regression SS|       4234      |          3         |     `r reg1`   |    `r fr`    |
+| Residual SS |       3487      |        `r resdf`   |  `r res1`      |              |
+| Total ss    |     `r tot1`    |      `r totdf`     |                |              |
+
+
+### <span style="color:red">Problem 1(b)</span>
+
+What is the value of $r^2$? 
+
+### <span style="color:green">Solution 1(b)</span>
+
+```{r}
+r2 <- 4234/tot1
+round(r2,3)
+```
+
+
+### <span style="color:red">Problem 1(c)</span>
+
+What is the standard error of the estimate? 
+
+### <span style="color:green">Solution 1(c)</span>
+
+```{r}
+sterr1 <- sqrt(resmean)
+round(sterr1,3)
+```
+
+
+### <span style="color:red">Problem 1(d)</span>
+
+Test the null hypothesis that $R^2 = 0$ by comparing the $F-statistic$ from the table with its critical value. 
+
+### <span style="color:green">Solution 1(d)</span>
+
+```{r}
+crit1 <- qf(0.95, 3,12)
+if(f1 < crit1){
+print("We fail to reject the null hypothesis")
+} else {
+print("We reject the null hypothesis")}
+```
+
+
+### <span style="color:red">Problem 1(e)</span>
+
+Are the coefficients in the direction you would hypothesize? If not, which coefficients are opposite in sign from what you would expect? 
+
+### <span style="color:green">Solution 1(e)</span>
+
+```{r}
+print("The size of the lot coefficent has the opposite sign of what I would expect")
+```
+
+
+### <span style="color:red">Problem 1(f)</span>
+
+Find the $t-statistics$ associated with each coefficient, and test the null hypotheses that the coefficients are equal to zero. Use $ \alpha = 0.05$, and be sure to give the critical value of $t$. 
+
+### <span style="color:green">Solution 1(f)</span>
+
+#### <span style="color:purple">Median Household Income</span>
+```{r}
+ti <- 1.57/0.34
+round(ti,3)
+critt1 <- qt(0.975, 13)
+critt1
+if(ti < critt1){
+print("We fail to reject the null hypothesis")
+} else {
+print("We reject the null hypothesis")}
+```
+
+#### <span style="color:purple">Size of House</span>
+```{r}
+th <- 23.4/11.2
+round(th,3)
+critt1
+if(th < critt1){
+print("We fail to reject the null hypothesis")
+} else {
+print("We reject the null hypothesis")}
+```
+
+#### <span style="color:purple">Size of Lot</span>
+```{r}
+tl <- -9.5/7.1
+round(tl,3)
+-critt1
+if(tl > -critt1){
+print("We fail to reject the null hypothesis")
+} else {
+print("We reject the null hypothesis")}
+```
+
+
+### <span style="color:red">Problem 1(g)</span>
+
+What do you conclude from the variance inflation factors (VIFs)? What (if any) modifications would you recommend in light of the VIFs? 
+
+### <span style="color:green">Solution 1(g)</span>
+
+```{r}
+print("Because the VIFs for median family income and size of house are both under 4, there is no cause for concern. However, the VIF for size of lot is over 10, whch shows signs that it is highly correlated with another variable and should potentially be removed when performing the regression.")
+```
+
+
+### <span style="color:red">Problem 1(h)</span>
+
+What is the predicted sales price of a house that is 1500 square feet, on a lot 60´×100´, and in a neighborhood where the median family income is $40,000?
+
+### <span style="color:green">Solution 1(h)</span>
+
+```{r}
+y <- (1.57*40000)+(23.4*1500)+(-9.5*6000)
+y
+```
+
+
+
+## <span style="color:blue">Question 2</span>
+
+This is Exercise 10 in Chapter 9 of the Textbook [R].
+
+### <span style="color:red">Problem 2(a)</span>
+
+Using R and the [Hypothetical UK Housing Prices dataset](http://spatial.binghamton.edu/geog533/data/UK_Housing.csv), construct a regression equation using housing price as the dependent variable, and bedrooms, bathrooms, date built, garage, fireplace, floor area, and whether the home is detached as the independent variables. Investigate the importance of multicollinearity and outliers. Comment on the weaknesses of this specification, and on the results. 
+
+### <span style="color:green">Solution 2(a)</span>
+
+```{r}
+UK <- read.csv("UK.csv")
+m <- lm(UK$price~UK$bedrooms+UK$bathrooms+UK$datebuilt+UK$garage+UK$fireplace+UK$floorarea+UK$detached)
+coefficients(m)
+```
+$\hat{y} = -256087.185 + 686.007*bedrooms + 2637.287*bathrooms + 130.358*datebuilt + 10980.775*garage - 3144.388*fireplace + 374.180*floorarea + 13186.756*detached$
+
+```{r}
+summary(m)
+print("this specification is weak due to two independent variables being insignificant when using alpha = 0.05. These variables are bedrooms and bathrooms who have a sginificance level of 1 and 0.1, respectively")
+```
+
+
+### <span style="color:red">Problem 2(b)</span>
+
+Attempt to improve the regression equation found in (a). Justify your decisions in constructing and carrying out the analysis.
+
+### <span style="color:green">Solution 2(b)</span>
+
+```{r}
+n <- lm(UK$price~UK$datebuilt+UK$garage+UK$fireplace+UK$floorarea+UK$detached)
+coefficients(n)
+```
+$\hat{y} = -260574.754 + 134.387*datebuilt + 10913.992*garage - 3016.557*fireplace + 387.530*floorarea + 13935.258*detached$
+
+```{r}
+print("This is an improved regression equation because it removes the two insignificant independent variables from the previous step. Now, all variables have a significance level of 0.05 or greater.")
+```
+
+
+## <span style="color:blue">Question 3</span>
+
+This is Exercise 11 in Chapter 9 of the Textbook [R].
+
+### <span style="color:red">Problem 3(a)</span>
+
+Using R and the [Milwaukee dataset](http://spatial.binghamton.edu/geog533/data/Milwaukee_Sales.csv) described in Section 1.9.2, construct a regression equation using housing sales price as the dependent variable, and number of bedrooms, lot size, finished square footage in the house, age of house, and number of bathrooms, as the independent variables. Investigate the importance of multicollinearity and outliers. Comment on the weaknesses of this specification, and on the results. 
+
+### <span style="color:green">Solution 3(a)</span>
+
+```{r}
+mil <- read.csv("Milwaukee.csv")
+p <- lm(mil$SalePrice~mil$Bedrms+mil$LotSize+mil$FinSqft+mil$Age+mil$Baths)
+coefficients(p)
+```
+$\hat{y} = 26244.053 - 28756.150*bedrms + 3.580*LotSize + 100.716*FinSqft - 130.613*Age + 23023.352*Baths$
+
+```{r}
+summary(p)
+print("When using a significance level of aplha = 0.05, there is one independent variable that is insignificant, making this specification weaker than it could be. That variable is Age which has a significance level of 0.1")
+```
+
+
+### <span style="color:red">Problem 3 (b)</span>
+
+Attempt to improve the regression equation found in (a). Justify your decisions in constructing and carrying out the analysis.
+
+### <span style="color:green">Solution 3(b)</span>
+
+```{r}
+o <- lm(mil$SalePrice~mil$Bedrms+mil$LotSize+mil$FinSqft+mil$Baths)
+coefficients(o)
+```
+$\hat{y} = 15435.031 - 28697.640*Bedrms + 4.058*LotSize + 98.485*FinSqrt + 24010.682*Baths$
+
+```{r}
+print("For the improved regression equation, I removed the insignificant variable of Age. Now all the coefficients have a significance level of 0.05")
+```
+
+
+
+
