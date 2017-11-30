@@ -1,0 +1,186 @@
+---
+title: "Geog533 Lab 10"
+author: "Michael Kezner"
+date: "November 28, 2017"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+  html_document:
+    toc: yes
+---
+
+## <span style="color:blue">Question 1</span>
+Use R package UScensus2010county to complete the following tasks:  (20 pt.)
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+if(!require(UScensus2010)) {install.packages("UScensus2010")}
+library(UScensus2010)
+if(!require(UScensus2010county)) {install.county("osx")}
+library(UScensus2010county)
+library(tmap)
+```
+
+
+### <span style="color:red">Question 1(a)</span>
+Plot a map of New York counties using the plot function.
+```{r}
+data("new_york.county10")
+shp <- new_york.county10
+df <- shp@data
+plot(shp)
+```
+
+### <span style="color:red">Question 1(b)</span>
+Plot a map of New York counties using the qtm function.
+```{r}
+qtm(shp)
+```
+
+
+### <span style="color:red">Question 1(c)</span>	
+How many counties in New York State?
+```{r}
+NROW(df)
+```
+
+### <span style="color:red">Question 1(d)</span>
+What’s the 3-digit fips code of Broome County?
+```{r}
+df[1,4]
+```
+
+### <span style="color:red">Question 1(e)</span>
+Compute descriptive statistics of the population column (P0010001), including total, minimum, maximum, mean, median, and skewness. 
+```{r}
+pop1 <- df$P0010001
+sum(pop1)
+min(pop1)
+max(pop1)
+mean(pop1)
+median(pop1)
+library(moments)
+skewness(pop1)
+```
+
+### <span style="color:red">Question 1(f)</span>	
+Create a histogram and a boxplot of the population.
+```{r}
+hist(pop1, main = "P0010001")
+boxplot(pop1)
+```
+
+
+## <span style="color:blue">Question 2</span>
+Use R package UScensus2010tract to complete the following tasks:    (20 pt.)
+```{r message=FALSE, warning=FALSE}
+if(!require(UScensus2010tract)) {install.tract("osx")}
+library(UScensus2010tract)
+```
+
+### <span style="color:green">Question 2(a)</span>	
+Plot a map of New York census tracts using the plot function.
+```{r}
+data("new_york.tract10")
+shp2 <- new_york.tract10
+df2 <- shp2@data
+plot(shp2)
+```
+
+### <span style="color:green">Question 2(b)</span>
+Compute the total population based on census tracts.
+```{r}
+sum(df2$P0010001)
+```
+
+### <span style="color:green">Question 2(c)</span>
+Select all census tracts in Broome County and plot the map. 
+```{r}
+broome <- df2$county == "007"
+plot(shp2[broome,])
+```
+
+### <span style="color:green">Question 2(d)</span>
+What’s the total population of Broome County?
+```{r}
+broomepop <- df2[df2$county == "007",]
+sum(broomepop$P0010001)
+```
+
+### <span style="color:green">Question 2(e)</span>
+Create a histogram and a boxplot of population based on census tracts of Broome County.
+```{r}
+hist(broomepop$P0010001)
+boxplot(broomepop$P0010001)
+```
+
+### <span style="color:green">Question 2(f)</span>
+Select the first five columns of the shapefile of Broome County census tract; add a new population ratio column (= census tract population / county population); save the new shapefile to the hard drive. 
+```{r message=FALSE, warning=FALSE}
+sel <- data.frame(broomepop[,1:5])
+sel$ratio <- broomepop$P0010001/200600
+sel
+```
+
+
+## <span style="color:blue">Question 3</span>
+
+Use R packages raster and ncdf4 to complete the following tasks:     (20 pt.)
+```{r, message=FALSE, warning=FALSE}
+library(raster)
+library(ncdf4)
+```
+
+### <span style="color:purple">Question 3(a)</span>		
+Load the multi-band raster dataset “NDVI.nc” into R.
+```{r}
+ndvi <- raster("NDVI.nc")
+```
+
+### <span style="color:purple">Question 3(b)</span>	
+Get the basic information about the dataset, including the number of rows, columns, cells, and bands; spatial resolution, extent, bounding box, and projection.
+```{r}
+nrow(ndvi)
+ncol(ndvi)
+ncell(ndvi)
+nbands(ndvi)
+res(ndvi)
+extent(ndvi)
+bbox(ndvi)
+projection(ndvi)
+```
+
+### <span style="color:purple">Question 3(c)</span>	
+Aggregate all bands to generate a mean NDVI raster and a maximum NDVI raster; save the two new raster datasets to the hard drive. 
+```{r}
+ndvi.rb <- brick("ndvi.nc")
+meanndvi <- mean(ndvi.rb)
+plot(meanndvi)
+writeRaster(meanndvi,filename = "meanndvi.tif",overwrite=TRUE)
+maxndvi <- max(ndvi.rb)
+plot(maxndvi)
+writeRaster(maxndvi,filename = "maxndvi.tif",overwrite=TRUE)
+```
+
+### <span style="color:purple">Question 3(d)</span>			
+Plot the maps of monthly NDVI of the year 2001
+```{r}
+plot(ndvi.rb,13:24)
+```
+
+### <span style="color:purple">Question 3(e)</span>	
+Create histograms of monthly NDVI of the year 2001.
+```{r message=FALSE, warning=FALSE}
+hist(ndvi.rb,13:24)
+```
+
+### <span style="color:purple">Question 3(f)</span>			
+Plot the NDVI map of July 2000; click any location with data on the map and retrieve the NDVI time series for all years; plot the NDVI time series of the selected location. 
+```{r}
+plot(ndvi.rb,7)
+```
+
+```{r}
+values <- click(ndvi.rb,n=1, xy=FALSE)
+plot(as.vector(values), type="b")
+```
+
