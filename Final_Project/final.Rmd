@@ -1,0 +1,350 @@
+---
+title: <span style="color:darkorchid">Geog533 Final Project</span>
+author: <span style="color:magenta">Michael Kezner</span>
+date: <span style="color:magenta">December 1, 2017</span>
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+## <span style="color:navy">Introduction</span>
+
+For this project, I will be analyzing tweets from Fort Collins, Colorado. In addition, I will be comparing them to tweets from Denver, another city in Colorado, and Sioux Falls, South Dakota another city in the United States with a similar population size. To do this, I will be generating a word cloud for each city in order to see what people are talking about and if they are the same or not. I will also be performing a sentiment analysis to see whether people have positive or negative things to say about these cities. Finally, I will map the location of origin of the tweets to see whether people are tweeting from these cities from within their boundaries or from other cities.
+
+## <span style="color:navy">Setting Up</span>
+
+### <span style="color:olivedrab">Installing and Loading R Packages</span>
+```{r message=FALSE, warning=FALSE}
+if (!require(twitteR)) {install.packages("twitteR")}
+if (!require(ROAuth)) {install.packages("ROAuth")}
+if (!require(tm)) {install.packages("tm")}
+if (!require(wordcloud)) {install.packages("wordcloud")}
+if (!require(plyr)) {install.packages("plyr")}
+if (!require(dplyr)) {install.packages("dplyr")}
+if (!require(stringr)) {install.packages("stringr")}
+if (!require(ggplot2)) {install.packages("ggplot2")}
+if(!require(leaflet)) {install.packages("leaflet")}
+library(twitteR)
+library(ROAuth)
+library(tm)
+library(wordcloud)
+library(plyr)
+library(dplyr)
+library(stringr)
+library(ggplot2)
+library(leaflet)
+```
+
+### <span style="color:olivedrab">Authentication</span>
+```{r}
+my.consumer.key = "ZVZAiKWzWQ7hycdDJ84mOya5V"
+my.consumer.secret = "6ZOAHASDYiQJDBwLgI8NvLGTsUM2UXeawHvyCSwEDssQ2a6f5R"
+my.access.token = "719285386325979136-sEoMws7TTFANiULq0rtW66rSQFIpTO4"
+my.access.token.secret = "npkmEAtozfxLyXikAbRQgu0DNl07BjjGsHWNZhydoi63i"
+
+my_oauth <- setup_twitter_oauth(consumer_key = my.consumer.key, consumer_secret = my.consumer.secret, access_token = my.access.token, access_secret = my.access.token.secret)
+
+save(my_oauth, file = "my_oauth.Rdata")
+```
+
+## <span style="color:navy">Extracting Text</span>
+
+Here I will extract 1350 tweets about each city from the week of November 27, 2017 and convert them to a data frame
+
+#### <span style="color:purple">Fort Collins</span>
+```{r}
+fc <- searchTwitter(searchString = '#fortcollins OR Fort Collins', n = 1350, since = '2017-11-27', until = '2017-12-01')
+fcdf <- twListToDF(fc)
+write.csv(fcdf, "fcdf.csv")
+```
+
+
+#### <span style="color:mediumblue">Denver</span>
+```{r}
+den <- searchTwitter(searchString = '#denver OR Denver', n = 1350, since = '2017-11-27', until = '2017-12-01')
+denverdf <- twListToDF(den)
+write.csv(denverdf, "denverdf.csv")
+```
+
+#### <span style="color:firebrick">Sioux Falls</span>
+```{r message=FALSE, warning=FALSE}
+sf <- searchTwitter(searchString = '#siouxfalls OR Sioux Falls', n = 1350, since = '2017-11-27', until = '2017-12-01')
+siouxdf <- twListToDF(sf)
+write.csv(siouxdf, "siouxdf1.csv")
+```
+
+## <span style="color:navy">Generating Word Clouds</span>
+
+In this section, I will generate word clouds for the words that appear the most from each city and then create a table showing the 10 most frequent terms from the cities
+
+### <span style="color:olivedrab">Authentication</span>
+```{r}
+my.consumer.key = "ZVZAiKWzWQ7hycdDJ84mOya5V"
+my.consumer.secret = "6ZOAHASDYiQJDBwLgI8NvLGTsUM2UXeawHvyCSwEDssQ2a6f5R"
+my.access.token = "719285386325979136-sEoMws7TTFANiULq0rtW66rSQFIpTO4"
+my.access.token.secret = "npkmEAtozfxLyXikAbRQgu0DNl07BjjGsHWNZhydoi63i"
+
+my_oauth <- setup_twitter_oauth(consumer_key = my.consumer.key, consumer_secret = my.consumer.secret, access_token = my.access.token, access_secret = my.access.token.secret)
+
+save(my_oauth, file = "my_oauth.Rdata")
+```
+
+### <span style="color:olivedrab">Getting the Text</span>
+```{r}
+fc.text <- sapply(fc, function(x) x$getText())
+denver.text <- sapply(den, function(x) x$getText())
+sioux.text <- sapply(sf, function(x) x$getText())
+```
+
+### <span style="color:olivedrab">Cleaning Up the Text</span>
+
+#### <span style="color:purple">Fort Collins</span>
+```{r}
+# Replace blank space (“rt”)
+fc.text <- gsub("rt", "", fc.text)
+# Replace @UserName
+fc.text <- gsub("@\\w+", "", fc.text)
+# Remove punctuation
+fc.text <- gsub("[[:punct:]]", "", fc.text)
+# Remove links
+fc.text <- gsub("http\\w+", "", fc.text)
+# Remove tabs
+fc.text <- gsub("[ |\t]{2,}", "", fc.text)
+# Remove blank spaces at the beginning
+fc.text <- gsub("^ ", "", fc.text)
+# Remove blank spaces at the end
+fc.text <- gsub(" $", "", fc.text)
+# Remove numbers
+fc.text <- gsub("[[:digit:]]+", " ", fc.text)
+# Remove non graphical characters
+fc.text <- gsub("[^[:graph:]]", " ", fc.text)
+# Convert all text to lower case
+fc.text <- tolower(fc.text)
+```
+
+#### <span style="color:mediumblue">Denver</span>
+```{r}
+denver.text <- gsub("rt", "", denver.text)
+denver.text <- gsub("@\\w+", "", denver.text)
+denver.text <- gsub("[[:punct:]]", "", denver.text)
+denver.text <- gsub("http\\w+", "", denver.text)
+denver.text <- gsub("[ |\t]{2,}", "", denver.text)
+denver.text <- gsub("^ ", "", denver.text)
+denver.text <- gsub(" $", "", denver.text)
+denver.text <- gsub("[[:digit:]]+", " ", denver.text)
+denver.text <- gsub("[^[:graph:]]", " ", denver.text)
+denver.text <- tolower(denver.text)
+```
+
+#### <span style="color:firebrick">Sioux Falls</span>
+```{r}
+sioux.text <- gsub("rt", "", sioux.text)
+sioux.text <- gsub("@\\w+", "", sioux.text)
+sioux.text <- gsub("[[:punct:]]", "", sioux.text)
+sioux.text <- gsub("http\\w+", "", sioux.text)
+sioux.text <- gsub("[ |\t]{2,}", "", sioux.text)
+sioux.text <- gsub("^ ", "", sioux.text)
+sioux.text <- gsub(" $", "", sioux.text)
+sioux.text <- gsub("[[:digit:]]+", " ", sioux.text)
+sioux.text <- gsub("[^[:graph:]]", " ", sioux.text)
+sioux.text <- tolower(sioux.text)
+```
+
+### <span style="color:olivedrab">Creating a Corpus</span>
+
+#### <span style="color:purple">Fort Collins</span>
+```{r message=FALSE, warning=FALSE}
+# Create a corpus
+fc.text.corpus <- Corpus(VectorSource(fc.text))
+# Remove stop words
+fc.text.corpus <- tm_map(fc.text.corpus, function(x) removeWords(x,stopwords()))
+# Remove specific words
+fc.text.corpus <- tm_map(fc.text.corpus, removeWords, c("via", "rtfo", "amp", "focollins", "time", "day", "nov", "rtcolorado", "will", "new"))
+```
+
+#### <span style="color:mediumblue">Denver</span>
+```{r}
+denver.text.corpus <- Corpus(VectorSource(denver.text))
+denver.text.corpus <- tm_map(denver.text.corpus, function(x) removeWords(x,stopwords()))
+denver.text.corpus <- tm_map(denver.text.corpus, removeWords, c("amp", "will", "get", "coming", "rtnew"))
+```
+
+#### <span style="color:firebrick">Sioux Falls</span>
+```{r}
+sioux.text.corpus <- Corpus(VectorSource(sioux.text))
+sioux.text.corpus <- tm_map(sioux.text.corpus, function(x) removeWords(x,stopwords()))
+sioux.text.corpus <- tm_map(sioux.text.corpus, removeWords, c("time","find"))
+```
+
+### <span style="color:olivedrab">Word Clouds</span>
+
+#### <span style="color:purple">Fort Collins</span>
+```{r}
+wordcloud(fc.text.corpus,min.freq = 5, scale=c(6,0.7),colors=brewer.pal(8, "Dark2"),  random.color= TRUE, random.order = FALSE, max.words = 150)
+```
+
+#### <span style="color:mediumblue">Denver</span>
+```{r}
+wordcloud(denver.text.corpus, min.freq = 5, scale=c(6,0.7),colors=brewer.pal(8, "Dark2"),  random.color= TRUE, random.order = FALSE, max.words = 150)
+```
+
+#### <span style="color:firebrick">Sioux Falls</span>
+```{r}
+wordcloud(sioux.text.corpus,min.freq = 5, scale=c(6,0.7),colors=brewer.pal(8, "Dark2"),  random.color= TRUE, random.order = FALSE, max.words = 150)
+```
+
+### <span style="color:olivedrab">Word Frequencies</span>
+
+#### <span style="color:purple">Fort Collins</span>
+```{r}
+fctdm <- as.matrix(TermDocumentMatrix(fc.text.corpus))
+fcfreq <- data.frame(Words = rownames(fctdm), Frequency = rowSums(fctdm), row.names = NULL)
+fctable <- fcfreq[order(fcfreq$Frequency, decreasing = TRUE),]
+head(fctable, 10)
+```
+
+#### <span style="color:mediumblue">Denver</span>
+```{r}
+denvertdm <- as.matrix(TermDocumentMatrix(denver.text.corpus))
+denverfreq <- data.frame(Words = rownames(denvertdm), Frequency = rowSums(denvertdm), row.names = NULL)
+denvertable <- denverfreq[order(denverfreq$Frequency, decreasing = TRUE),]
+head(denvertable, 10)
+```
+
+#### <span style="color:firebrick">Sioux Falls</span>
+```{r}
+siouxtdm <- as.matrix(TermDocumentMatrix(sioux.text.corpus))
+siouxfreq <- data.frame(Words = rownames(siouxtdm), Frequency = rowSums(siouxtdm), row.names = NULL)
+siouxtable <- siouxfreq[order(siouxfreq$Frequency, decreasing = TRUE),]
+head(siouxtable, 10)
+```
+
+## <span style="color:navy">Sentiment Analysis</span>
+
+In this section, I will analyze sentiments for each city. Text files containing positive and negative words are used. 
+ 
+### <span style="color:olivedrab">Authentication</span>
+```{r}
+my.consumer.key = "ZVZAiKWzWQ7hycdDJ84mOya5V"
+my.consumer.secret = "6ZOAHASDYiQJDBwLgI8NvLGTsUM2UXeawHvyCSwEDssQ2a6f5R"
+my.access.token = "719285386325979136-sEoMws7TTFANiULq0rtW66rSQFIpTO4"
+my.access.token.secret = "npkmEAtozfxLyXikAbRQgu0DNl07BjjGsHWNZhydoi63i"
+
+my_oauth <- setup_twitter_oauth(consumer_key = my.consumer.key, consumer_secret = my.consumer.secret, access_token = my.access.token, access_secret = my.access.token.secret)
+
+save(my_oauth, file = "my_oauth.Rdata")
+```
+
+### <span style="color:olivedrab">Positive and Negative Words</span>
+```{r}
+neg <- scan("negative-words.txt", what="character", comment.char=";")
+pos <- scan("positive-words.txt", what="character", comment.char=";")
+```
+
+### <span style="color:olivedrab">Function to Score Tweets</span>
+```{r}
+score.sentiment <-  function(tweets, pos.words, neg.words)
+
+{
+scores <-  laply(tweets, function(tweet, pos.words, neg.words) {
+
+tweet <-  gsub('https://','',tweet) # removes https://
+tweet <-  gsub('http://','',tweet) # removes http://
+tweet <- gsub('[^[:graph:]]', ' ',tweet) ## removes graphic characters  #like emoticons 
+tweet <-  gsub('[[:punct:]]', '', tweet) # removes punctuation 
+tweet <-  gsub('[[:cntrl:]]', '', tweet) # removes control characters
+tweet <-  gsub('\\d+', '', tweet) # removes numbers
+tweet <- str_replace_all(tweet,"[^[:graph:]]", " ") 
+tweet <-  tolower(tweet) # makes all letters lowercase
+
+word.list <-  str_split(tweet, '\\s+') # splits the tweets by word in a list
+words <-  unlist(word.list) # turns the list into vector
+pos.matches <-  match(words, pos.words) ## returns matching values for words from list 
+neg.matches <-  match(words, neg.words)
+pos.matches <-  !is.na(pos.matches) ## converts matching values to true of false
+neg.matches <-  !is.na(neg.matches)
+ 
+score <-  sum(pos.matches) - sum(neg.matches) # true and false are treated as 1 and 0 so they can be added
+ 
+return(score)
+ 
+}, pos.words, neg.words )
+ 
+scores.df = data.frame(score=scores, text=tweets)
+ 
+return(scores.df)
+ 
+}
+```
+
+### <span style="color:olivedrab">Plotting Sentiment</span>
+
+#### <span style="color:purple">Fort Collins</span>
+```{r}
+fcanalysis <-  score.sentiment(fc.text, pos, neg)
+table(fcanalysis$score)
+qplot(fcanalysis$score,binwidth = 0.9, main = "Fort Collins Sentiment", xlab = "Score",ylab = "Frequency", fill = I("blue"), col = I("orange"))
+                                                                                                                           
+```
+
+#### <span style="color:mediumblue">Denver</span>
+```{r}
+denveranalysis <-  score.sentiment(denver.text, pos, neg)
+table(denveranalysis$score)
+qplot(denveranalysis$score,binwidth = 0.9, main = "Denver Sentiment", xlab = "Score",ylab = "Frequency", fill = I("green"), col = I("blue"))
+```
+
+#### <span style="color:firebrick">Sioux Falls</span>
+```{r}
+siouxanalysis <-  score.sentiment(sioux.text, pos, neg)
+table(siouxanalysis$score)
+qplot(siouxanalysis$score,binwidth = 0.9, main = "Sioux Falls Sentiment", xlab = "Score",ylab = "Frequency", fill = I("purple"), col = I("red"))
+```
+
+## <span style="color:navy">Mapping the Tweets</span>
+
+In this section, I will map the locations of origin of the tweets that had coordinates attached to them. From this, I can see whether people are only talking about each city from inside them or if other people are also talking about them. 
+
+#### <span style="color:purple">Fort Collins</span>
+```{r}
+collins <- read.csv("fcdf.csv")
+fcleaf <- leaflet(width = "100%") %>%
+  addTiles() %>%
+  addProviderTiles(provider = "Esri.WorldStreetMap",group = "World StreetMap") %>%
+  addProviderTiles(provider = "Esri.WorldImagery",group = "World Imagery") %>%
+  addLayersControl(
+    baseGroups = c("OSM (default)","World StreetMap", "World Imagery"),
+    options = layersControlOptions(collapsed = FALSE)) %>%
+  addMarkers(label = collins$text, lng = collins$longitude, lat=collins$latitude, clusterOptions = markerClusterOptions())
+fcleaf
+```
+
+#### <span style="color:mediumblue">Denver</span>
+```{r}
+denver <- read.csv("denverdf.csv")
+denverleaf <- leaflet(width = "100%") %>%
+  addTiles() %>%
+  addProviderTiles(provider = "Esri.WorldStreetMap",group = "World StreetMap") %>%
+  addProviderTiles(provider = "Esri.WorldImagery",group = "World Imagery") %>%
+  addLayersControl(
+    baseGroups = c("OSM (default)","World StreetMap", "World Imagery"),
+    options = layersControlOptions(collapsed = FALSE)) %>%
+  addMarkers(label = denver$text, lng = denver$longitude, lat=denver$latitude, clusterOptions = markerClusterOptions())
+denverleaf
+```
+
+#### <span style="color:firebrick">Sioux Falls</span>
+```{r}
+falls <- read.csv("siouxdf.csv")
+fallsleaf <- leaflet(width = "100%") %>%
+  addTiles() %>%
+  addProviderTiles(provider = "Esri.WorldStreetMap",group = "World StreetMap") %>%
+  addProviderTiles(provider = "Esri.WorldImagery",group = "World Imagery") %>%
+  addLayersControl(
+    baseGroups = c("OSM (default)","World StreetMap", "World Imagery"),
+    options = layersControlOptions(collapsed = FALSE)) %>%
+  addMarkers(label = falls$text, lng = falls$longitude, lat=falls$latitude, clusterOptions = markerClusterOptions())
+fallsleaf
+```
+
